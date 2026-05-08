@@ -75,6 +75,21 @@
         .footer-link a:hover { text-decoration: underline; }
 
         @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+        
+        @media (max-width: 480px) {
+            body { padding: 16px; }
+            .register-container { padding: 32px 24px; border-radius: 16px; max-width: 100%; }
+            .back-link { margin-bottom: 24px; font-size: 0.8rem; }
+            h2 { font-size: 1.4rem; margin-bottom: 4px; }
+            .subtitle { font-size: 0.85rem; margin-bottom: 24px; }
+            .field-group { margin-bottom: 16px; }
+            label { font-size: 0.8rem; margin-bottom: 6px; }
+            input { padding: 11px 14px; font-size: 0.9rem; }
+            .hint { font-size: 0.7rem; }
+            .error-msg, .success-msg { font-size: 0.8rem; padding: 9px 12px; margin-bottom: 14px; }
+            button[type="submit"] { padding: 12px; font-size: 0.9rem; margin-top: 4px; }
+            .footer-link { font-size: 0.8rem; margin-top: 16px; }
+        }
     </style>
 </head>
 <body>

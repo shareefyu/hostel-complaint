@@ -84,8 +84,8 @@
         }
 
         .portal-selection {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
-            width: 100%; max-width: 760px; margin-bottom: 40px;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+            width: 100%; max-width: 1100px; margin-bottom: 40px;
             animation: fadeUp 0.6s 0.1s ease both;
         }
 
@@ -109,6 +109,7 @@
 
         .card.student .icon { background: var(--blue-light); }
         .card.admin  .icon { background: rgba(16,185,129,0.1); }
+        .card.technician .icon { background: rgba(249,115,22,0.1); }
 
         .card h2 {
             font-family: 'Syne', sans-serif;
@@ -133,6 +134,9 @@
         .admin-link { background: var(--emerald); color: #fff; }
         .admin-link:hover { background: #059669; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(16,185,129,0.3); }
 
+        .technician-link { background: #f97316; color: #fff; }
+        .technician-link:hover { background: #ea580c; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(249,115,22,0.3); }
+
         .features-section {
             background: var(--surface); border: 1px solid var(--border);
             border-radius: var(--radius); padding: 28px 32px;
@@ -156,9 +160,32 @@
             to   { opacity: 1; transform: translateY(0); }
         }
 
-        @media (max-width: 600px) {
-            .portal-selection { grid-template-columns: 1fr; }
-            .features-grid { grid-template-columns: 1fr; }
+        @media (max-width: 1024px) {
+            h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); }
+            .portal-selection { grid-template-columns: repeat(2, 1fr); gap: 16px; max-width: 600px; }
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 24px 16px; }
+            h1 { margin-bottom: 12px; }
+            .hero p { font-size: 0.95rem; }
+            .portal-selection { grid-template-columns: 1fr; gap: 14px; max-width: 100%; }
+            .card { padding: 28px 20px; }
+            .features-grid { grid-template-columns: 1fr; gap: 12px; }
+            .features-section { padding: 20px 24px; }
+        }
+
+        @media (max-width: 480px) {
+            body { padding: 16px 12px; }
+            .hero { margin-bottom: 32px; }
+            h1 { font-size: clamp(1.4rem, 3vw, 2rem); margin-bottom: 8px; }
+            .hero p { font-size: 0.9rem; max-width: 100%; }
+            .card { padding: 20px 16px; border-radius: 12px; }
+            .card h2 { font-size: 1.1rem; margin-bottom: 8px; }
+            .card p { font-size: 0.8rem; margin-bottom: 16px; }
+            .link { padding: 10px 20px; font-size: 0.8rem; }
+            .features-section { padding: 16px 18px; border-radius: 12px; }
+            .features-grid { grid-template-columns: 1fr; gap: 10px; }
         }
     </style>
 </head>
@@ -181,6 +208,12 @@
             <h2>Admin Panel</h2>
             <p>Manage complaints, respond to students, and track resolution progress</p>
             <a href="adminlogin.html" class="link admin-link">Continue as Admin →</a>
+        </div>
+        <div class="card technician">
+            <div class="icon">👷</div>
+            <h2>Technician Portal</h2>
+            <p>View assigned tasks, update progress, and resolve maintenance requests</p>
+            <a href="technicianlogin.html" class="link technician-link">Continue as Technician →</a>
         </div>
     </div>
 
