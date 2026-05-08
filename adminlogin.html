@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login — Hostel Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { height: 100%; overflow-y: auto; }
+
+        :root {
+            --bg: #ffffff; --surface: #f8fafc; --border: #e2e8f0;
+            --text-main: #0f172a; --text-muted: #64748b;
+            --emerald: #10b981; --emerald-hover: #059669;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif; background: var(--bg);
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            padding: 24px; position: relative; color: var(--text-main);
+        }
+
+        body::before {
+            content: ''; position: fixed; top: -30%; left: -20%; width: 70%; height: 70%;
+            background: radial-gradient(circle, rgba(16,185,129,0.08) 0%, transparent 70%);
+            pointer-events: none; z-index: 0;
+        }
+
+        .login-container {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+            padding: 44px 40px; width: 100%; max-width: 420px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+            position: relative; z-index: 1; animation: fadeUp 0.5s ease both;
+        }
+
+        .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--text-muted); font-size: 0.85rem; text-decoration: none; margin-bottom: 28px; transition: color 0.2s; }
+        .back-link:hover { color: var(--text-main); }
+
+        h2 { font-family: 'Syne', sans-serif; font-size: 1.75rem; font-weight: 800; margin-bottom: 6px; }
+        .subtitle { color: var(--text-muted); font-size: 0.88rem; margin-bottom: 32px; }
+
+        .field-group { margin-bottom: 18px; }
+        label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-bottom: 7px; }
+
+        input {
+            width: 100%; padding: 12px 16px; background: #fff;
+            border: 1px solid var(--border); border-radius: 10px; color: var(--text-main);
+            font-family: 'DM Sans', sans-serif; font-size: 0.95rem; outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input::placeholder { color: #94a3b8; }
+        input:focus { border-color: var(--emerald); box-shadow: 0 0 0 3px rgba(16,185,129,0.1); }
+
+        .password-wrapper { position: relative; }
+        .password-wrapper input { padding-right: 44px; }
+        .toggle-pw {
+            position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; color: var(--text-muted); cursor: pointer;
+            font-size: 1rem; transition: color 0.2s;
+        }
+        .toggle-pw:hover { color: var(--text-main); }
+
+        .error-msg { background: #fee2e2; border: 1px solid #f87171; color: #b91c1c; font-size: 0.85rem; padding: 10px 14px; border-radius: 8px; margin-bottom: 16px; display: none; }
+        .error-msg.visible { display: block; }
+
+        button[type="submit"] {
+            width: 100%; padding: 13px; background: var(--emerald); color: #fff;
+            border: none; border-radius: 10px; font-family: 'Syne', sans-serif;
+            font-size: 0.95rem; font-weight: 700; cursor: pointer; margin-top: 6px;
+            transition: background 0.2s, transform 0.15s;
+        }
+        button[type="submit"]:hover { background: var(--emerald-hover); transform: translateY(-1px); }
+
+        .footer-link { text-align: center; margin-top: 20px; font-size: 0.85rem; color: var(--text-muted); }
+        .footer-link a { color: var(--emerald); text-decoration: none; font-weight: 600; }
+        .footer-link a:hover { text-decoration: underline; }
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <a href="index.html" class="back-link">← Back to Home</a>
+        <h2>Admin Gateway</h2>
+        <p class="subtitle">Secure login for hostel administrators</p>
+        
+        <div class="error-msg" id="errorMessage"></div>
+        
+        <form onsubmit="doAdminLogin(event)">
+            <div class="field-group">
+                <label for="logEmail">Admin Email</label>
+                <input type="email" id="logEmail" placeholder="admin@university.edu" autocomplete="email" required>
+            </div>
+            <div class="field-group">
+                <label for="logPassword">Admin Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="logPassword" placeholder="Your password" autocomplete="current-password" required>
+                    <button type="button" class="toggle-pw" onclick="togglePassword('logPassword', this)">👁</button>
+                </div>
+            </div>
+            <button type="submit">Access Dashboard</button>
+        </form>
+        
+        <p class="footer-link">Need admin privileges? <a href="adminregistration.html">Register here</a></p>
+    </div>
+
+    <script>
+        function togglePassword(id, btn) {
+            const input = document.getElementById(id);
+            if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
+            else { input.type = 'password'; btn.textContent = '👁'; }
+        }
+
+        function doAdminLogin(event) {
+            event.preventDefault();
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.classList.remove('visible');
+            const email = document.getElementById('logEmail').value.trim();
+            const password = document.getElementById('logPassword').value;
+
+            // Notice we check 'admins' array, not 'users'
+            const admins = JSON.parse(localStorage.getItem('admins')) || [];
+            const admin  = admins.find(a => a.email === email && a.password === password);
+
+            if (!admin) {
+                errorDiv.textContent = 'Invalid admin credentials. Please try again.';
+                errorDiv.classList.add('visible');
+                return;
+            }
+            
+            // Set session storage specifically for admins
+            sessionStorage.setItem('authAdmin', JSON.stringify(admin));
+            window.location.href = 'adminportal.html';
+        }
+    </script>
+</body>
+</html>

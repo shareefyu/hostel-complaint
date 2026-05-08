@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hostel Portal Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg: #f8fafc; --surface: #ffffff; --border: #e2e8f0;
+            --text-main: #0f172a; --text-muted: #64748b;
+            --blue: #3b82f6; --blue-light: #eff6ff; --emerald: #10b981; --amber: #f59e0b; --red: #ef4444;
+            --radius: 14px;
+        }
+
+        html { height: 100%; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text-main); min-height: 100vh; overflow-x: hidden; }
+
+        header {
+            background: rgba(255,255,255,0.8); border-bottom: 1px solid var(--border);
+            padding: 0 32px; display: flex; align-items: center; justify-content: space-between;
+            height: 64px; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(12px);
+        }
+        .logo { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800; color: var(--text-main); }
+        .logo span { color: var(--blue); }
+        .header-right { display: flex; align-items: center; gap: 16px; }
+
+        .user-chip { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 100px; padding: 6px 16px 6px 8px; }
+        .avatar { width: 30px; height: 30px; background: var(--blue-light); color: var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 700; }
+        .user-name { font-size: 0.85rem; font-weight: 600; color: var(--text-main); }
+        .user-room { font-size: 0.75rem; color: var(--text-muted); }
+
+        .logout-btn { background: #fee2e2; border: 1px solid #fecaca; color: #b91c1c; border-radius: 8px; padding: 7px 14px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .logout-btn:hover { background: #fecaca; }
+
+        main { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
+        .page-title { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800; margin-bottom: 6px; }
+        .page-sub { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 28px; }
+
+        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px; }
+        .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); position: relative; overflow: hidden; }
+        .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+        .stat-card.total::before { background: var(--blue); } .stat-card.pending::before { background: var(--amber); } .stat-card.progress::before { background: #8b5cf6; } .stat-card.resolved::before { background: var(--emerald); }
+        .stat-label { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+        .stat-num { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; color: var(--text-main); }
+
+        .submit-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin-bottom: 28px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        .submit-section h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 16px; }
+        .form-row { display: grid; grid-template-columns: 1fr auto auto; gap: 12px; align-items: end; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 0.8rem; font-weight: 600; color: var(--text-main); }
+        .form-input { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 11px 14px; color: var(--text-main); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; outline: none; transition: border-color 0.2s; width: 100%; }
+        .form-input:focus { border-color: var(--blue); }
+        .submit-btn { padding: 11px 22px; background: var(--blue); color: #fff; border: none; border-radius: 10px; font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background 0.2s; align-self: end; }
+        .submit-btn:hover { background: #2563eb; }
+
+        .list-section h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 14px; }
+        .filter-tabs { display: flex; gap: 6px; margin-bottom: 16px; }
+        .tab { padding: 6px 16px; border-radius: 100px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text-muted); transition: all 0.2s; }
+        .tab:hover, .tab.active { background: var(--blue-light); border-color: rgba(59,130,246,0.3); color: var(--blue); }
+
+        .complaint-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
+        .complaint-left { flex: 1; min-width: 0; }
+        .complaint-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 6px; }
+        .complaint-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        
+        .badge { display: inline-flex; padding: 3px 10px; border-radius: 100px; font-size: 0.72rem; font-weight: 700; }
+        .badge.priority-high { background: #fee2e2; color: #b91c1c; }
+        .badge.priority-medium { background: #fef3c7; color: #d97706; }
+        .badge.priority-low { background: #f1f5f9; color: #475569; }
+        .badge.status-pending { background: #fef3c7; color: #d97706; }
+        .badge.status-in-progress { background: #ede9fe; color: #6d28d9; }
+        .badge.status-resolved { background: #d1fae5; color: #047857; }
+
+        .complaint-date { font-size: 0.75rem; color: var(--text-muted); font-weight: 500;}
+        .action-btn { padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text-muted); transition: all 0.2s; }
+        .action-btn:hover { background: #f1f5f9; color: var(--text-main); }
+        .action-btn.resolve { border-color: #a7f3d0; color: #047857; } .action-btn.resolve:hover { background: #d1fae5; }
+        .action-btn.remove { border-color: #fecaca; color: #b91c1c; } .action-btn.remove:hover { background: #fee2e2; }
+
+        .empty-state { text-align: center; padding: 48px; color: var(--text-muted); font-size: 0.95rem; font-weight: 500;}
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">Hostel<span>Portal</span></div>
+        <div class="header-right">
+            <div class="user-chip">
+                <div class="avatar" id="userAvatar">?</div>
+                <div><div class="user-name" id="userName">Loading...</div><div class="user-room" id="userRoom">Room —</div></div>
+            </div>
+            <button class="logout-btn" onclick="logout()">Sign Out</button>
+        </div>
+    </header>
+    <main>
+        <div class="page-title">My Dashboard</div>
+        <div class="page-sub">Track, submit, and manage your hostel complaints</div>
+        
+        <div class="stats">
+            <div class="stat-card total"><div class="stat-label">Total</div><div class="stat-num" id="total-count">0</div></div>
+            <div class="stat-card pending"><div class="stat-label">Pending</div><div class="stat-num" id="pending-count">0</div></div>
+            <div class="stat-card progress"><div class="stat-label">In Progress</div><div class="stat-num" id="progress-count">0</div></div>
+            <div class="stat-card resolved"><div class="stat-label">Resolved</div><div class="stat-num" id="resolved-count">0</div></div>
+        </div>
+
+        <div class="submit-section">
+            <h3>Submit a Complaint</h3>
+            <div class="form-row">
+                <div class="form-group" style="flex:1">
+                    <label>Issue Description</label>
+                    <input class="form-input" type="text" id="complaint-title" placeholder="e.g. Broken AC in room...">
+                </div>
+                <div class="form-group">
+                    <label>Priority</label>
+                    <select class="form-input" id="complaint-priority">
+                        <option value="high">🔴 High</option>
+                        <option value="medium" selected>🟡 Medium</option>
+                        <option value="low">⚪ Low</option>
+                    </select>
+                </div>
+                <button class="submit-btn" onclick="addComplaint()">Submit →</button>
+            </div>
+        </div>
+
+        <div class="list-section">
+            <h3>Recent Complaints</h3>
+            <div class="filter-tabs">
+                <button class="tab active" onclick="setFilter('all', this)">All</button>
+                <button class="tab" onclick="setFilter('pending', this)">Pending</button>
+                <button class="tab" onclick="setFilter('in-progress', this)">In Progress</button>
+                <button class="tab" onclick="setFilter('resolved', this)">Resolved</button>
+            </div>
+            <div id="complaints-container"></div>
+        </div>
+    </main>
+
+    <script>
+        const authUser = JSON.parse(sessionStorage.getItem('authUser'));
+        if (!authUser) window.location.href = 'studentlogin.html';
+
+        document.getElementById('userName').textContent = authUser.name;
+        document.getElementById('userRoom').textContent = 'Room ' + (authUser.room || 'N/A');
+        document.getElementById('userAvatar').textContent = authUser.name.charAt(0).toUpperCase();
+
+        const STORAGE_KEY = 'complaints_' + authUser.email;
+        let complaints = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        let activeFilter = 'all';
+
+        function saveComplaints() { localStorage.setItem(STORAGE_KEY, JSON.stringify(complaints)); }
+        function updateStats() {
+            document.getElementById('total-count').textContent = complaints.length;
+            document.getElementById('pending-count').textContent = complaints.filter(c => c.status === 'pending').length;
+            document.getElementById('progress-count').textContent = complaints.filter(c => c.status === 'in-progress').length;
+            document.getElementById('resolved-count').textContent = complaints.filter(c => c.status === 'resolved').length;
+        }
+
+        function renderComplaints() {
+            const container = document.getElementById('complaints-container');
+            const filtered = activeFilter === 'all' ? complaints : complaints.filter(c => c.status === activeFilter);
+            if (!filtered.length) { container.innerHTML = `<div class="empty-state">📭 No complaints found.</div>`; return; }
+
+            container.innerHTML = filtered.map(c => {
+                const idx = complaints.indexOf(c);
+                return `
+                <div class="complaint-item">
+                    <div class="complaint-left">
+                        <div class="complaint-title">${c.title}</div>
+                        <div class="complaint-meta">
+                            <span class="badge priority-${c.priority}">${c.priority.toUpperCase()}</span>
+                            <span class="badge status-${c.status}">${c.status.replace('-', ' ').toUpperCase()}</span>
+                            <span class="complaint-date">${new Date(c.date).toLocaleDateString()}</span>
+                        </div>
+                    </div>
+                    <div class="complaint-actions">
+                        ${c.status !== 'resolved' ? `<button class="action-btn resolve" onclick="markResolved(${idx})">✓ Resolve</button>` : ''}
+                        <button class="action-btn remove" onclick="removeComplaint(${idx})">Remove</button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function addComplaint() {
+            const input = document.getElementById('complaint-title');
+            if (!input.value.trim()) return;
+            complaints.unshift({ id: Date.now(), title: input.value.trim(), priority: document.getElementById('complaint-priority').value, status: 'pending', date: Date.now() });
+            input.value = ''; saveComplaints(); renderComplaints(); updateStats();
+        }
+        function markResolved(idx) { complaints[idx].status = 'resolved'; saveComplaints(); renderComplaints(); updateStats(); }
+        function removeComplaint(idx) { complaints.splice(idx, 1); saveComplaints(); renderComplaints(); updateStats(); }
+        function setFilter(f, btn) { activeFilter = f; document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); btn.classList.add('active'); renderComplaints(); }
+        function logout() { sessionStorage.removeItem('authUser'); window.location.href = 'index.html'; }
+
+        renderComplaints(); updateStats();
+    </script>
+</body>
+</html>
