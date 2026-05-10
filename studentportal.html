@@ -55,6 +55,17 @@
         .submit-btn { padding: 11px 22px; background: var(--blue); color: #fff; border: none; border-radius: 10px; font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background 0.2s; align-self: end; }
         .submit-btn:hover { background: #2563eb; }
 
+        .image-upload-wrapper { background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 10px; padding: 16px; text-align: center; cursor: pointer; transition: all 0.2s; margin-bottom: 12px; }
+        .image-upload-wrapper:hover { border-color: var(--blue); background: #eff6ff; }
+        .image-upload-wrapper input[type="file"] { display: none; }
+        .upload-label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); cursor: pointer; }
+        .image-preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; margin-bottom: 12px; }
+        .image-preview { position: relative; width: 100%; padding-bottom: 100%; background: #f1f5f9; border-radius: 8px; overflow: hidden; }
+        .image-preview img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+        .image-preview-remove { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; background: rgba(0,0,0,0.6); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.75rem; display: flex; align-items: center; justify-content: center; }
+        .image-preview-remove:hover { background: rgba(0,0,0,0.8); }
+        .image-upload-hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 6px; }
+
         .ticket-confirmation { background: #d1fae5; border: 1px solid #a7f3d0; color: #065f46; padding: 14px 16px; border-radius: 10px; margin-bottom: 16px; display: none; font-weight: 600; font-size: 0.9rem; }
         .ticket-confirmation.visible { display: block; animation: slideDown 0.3s ease; }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
@@ -147,11 +158,13 @@
         <div class="submit-section">
             <h3>Submit a Complaint</h3>
             <div class="ticket-confirmation" id="ticket-confirmation"></div>
-            <div class="form-row">
-                <div class="form-group" style="flex:1">
+            <div style="margin-bottom: 12px;">
+                <div class="form-group">
                     <label>Issue Description</label>
                     <input class="form-input" type="text" id="complaint-title" placeholder="e.g. Broken AC in room...">
                 </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;" id="form-inline">
                 <div class="form-group">
                     <label>Priority</label>
                     <select class="form-input" id="complaint-priority">
@@ -160,6 +173,14 @@
                         <option value="low">⚪ Low</option>
                     </select>
                 </div>
+            </div>
+            <div class="image-upload-wrapper" onclick="document.getElementById('complaint-image').click()">
+                <label class="upload-label" for="complaint-image">📸 Click or drag images here</label>
+                <input type="file" id="complaint-image" accept="image/*" multiple onchange="handleImageUpload(event)">
+                <div class="image-upload-hint">JPG, PNG, WebP — up to 5MB per image</div>
+                <div class="image-preview-grid" id="image-preview-container"></div>
+            </div>
+            <div style="display: flex; justify-content: flex-end;">
                 <button class="submit-btn" onclick="addComplaint()">Submit →</button>
             </div>
         </div>
@@ -176,6 +197,14 @@
         </div>
     </main>
 
+    <!-- Image Viewer Modal -->
+    <div id="imageModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center;">
+        <div style="position: relative; max-width: 90%; max-height: 90%; display: flex; align-items: center; justify-content: center;">
+            <img id="modalImage" src="" alt="Full size" style="max-width: 100%; max-height: 100%; border-radius: 8px;">
+            <button onclick="closeImageModal()" style="position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.2); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center;">×</button>
+        </div>
+    </div>
+
     <script>
         const authUser = JSON.parse(sessionStorage.getItem('authUser'));
         if (!authUser) window.location.href = 'studentlogin.html';
@@ -187,6 +216,7 @@
         const STORAGE_KEY = 'complaints_' + authUser.email;
         let complaints = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
         let activeFilter = 'all';
+        let selectedImages = [];
 
         function getAssignedTechnician(complaintId) {
             const techData = localStorage.getItem('request_tech_' + complaintId);
@@ -219,7 +249,13 @@
                             <span class="badge priority-${c.priority}">${c.priority.toUpperCase()}</span>
                             <span class="badge status-${c.status}">${c.status.replace('-', ' ').toUpperCase()}</span>
                             <span class="complaint-date">${new Date(c.date).toLocaleDateString()}</span>
+                            ${c.images && c.images.length > 0 ? `<span style="font-size: 0.75rem; color: var(--text-muted);">📷 ${c.images.length} image(s)</span>` : ''}
                         </div>
+                        ${c.images && c.images.length > 0 ? `
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 8px; margin-top: 12px;">
+                                ${c.images.map(img => `<img src="${img.data}" alt="Complaint image" style="width: 100%; height: 60px; object-fit: cover; border-radius: 6px; cursor: pointer;" onclick="viewImage(this)">`).join('')}
+                            </div>
+                        ` : ''}
                         ${technician ? `
                             <div class="technician-badge">
                                 👷 <strong>${technician.techName}</strong> (${technician.specialization})
@@ -240,6 +276,47 @@
             return `TKT-${timestamp}${random}`.slice(0, 12);
         }
 
+        function handleImageUpload(event) {
+            const files = Array.from(event.target.files);
+            files.forEach(file => {
+                if (file.size > 5242880) { alert(`${file.name} is larger than 5MB`); return; }
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    selectedImages.push({ name: file.name, data: e.target.result });
+                    renderImagePreviews();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function renderImagePreviews() {
+            const container = document.getElementById('image-preview-container');
+            container.innerHTML = selectedImages.map((img, idx) => `
+                <div class="image-preview">
+                    <img src="${img.data}" alt="Preview">
+                    <button class="image-preview-remove" onclick="removeImage(${idx})">×</button>
+                </div>
+            `).join('');
+        }
+
+        function removeImage(idx) {
+            selectedImages.splice(idx, 1);
+            renderImagePreviews();
+        }
+
+        function viewImage(imgElement) {
+            document.getElementById('modalImage').src = imgElement.src;
+            document.getElementById('imageModal').style.display = 'flex';
+        }
+
+        function closeImageModal() {
+            document.getElementById('imageModal').style.display = 'none';
+        }
+
+        document.getElementById('imageModal').addEventListener('click', (e) => {
+            if (e.target.id === 'imageModal') closeImageModal();
+        });
+
         function addComplaint() {
             const input = document.getElementById('complaint-title');
             if (!input.value.trim()) return;
@@ -250,7 +327,8 @@
                 title: input.value.trim(), 
                 priority: document.getElementById('complaint-priority').value, 
                 status: 'pending', 
-                date: Date.now() 
+                date: Date.now(),
+                images: selectedImages.length > 0 ? selectedImages : null
             });
             
             // Show confirmation message
@@ -260,6 +338,8 @@
             setTimeout(() => confirmMsg.classList.remove('visible'), 4000);
             
             input.value = ''; 
+            selectedImages = [];
+            renderImagePreviews();
             saveComplaints(); 
             renderComplaints(); 
             updateStats();
