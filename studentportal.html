@@ -55,6 +55,10 @@
         .submit-btn { padding: 11px 22px; background: var(--blue); color: #fff; border: none; border-radius: 10px; font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background 0.2s; align-self: end; }
         .submit-btn:hover { background: #2563eb; }
 
+        .ticket-confirmation { background: #d1fae5; border: 1px solid #a7f3d0; color: #065f46; padding: 14px 16px; border-radius: 10px; margin-bottom: 16px; display: none; font-weight: 600; font-size: 0.9rem; }
+        .ticket-confirmation.visible { display: block; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
         .list-section h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 14px; }
         .filter-tabs { display: flex; gap: 6px; margin-bottom: 16px; }
         .tab { padding: 6px 16px; border-radius: 100px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text-muted); transition: all 0.2s; }
@@ -142,6 +146,7 @@
 
         <div class="submit-section">
             <h3>Submit a Complaint</h3>
+            <div class="ticket-confirmation" id="ticket-confirmation"></div>
             <div class="form-row">
                 <div class="form-group" style="flex:1">
                     <label>Issue Description</label>
@@ -207,7 +212,9 @@
                 return `
                 <div class="complaint-item">
                     <div class="complaint-left">
-                        <div class="complaint-title">${c.title}</div>
+                        <div class="complaint-title">
+                            <span style="color: var(--blue); font-weight: 700; margin-right: 8px;">#${c.ticketId || 'N/A'}</span>${c.title}
+                        </div>
                         <div class="complaint-meta">
                             <span class="badge priority-${c.priority}">${c.priority.toUpperCase()}</span>
                             <span class="badge status-${c.status}">${c.status.replace('-', ' ').toUpperCase()}</span>
@@ -227,11 +234,35 @@
             }).join('');
         }
 
+        function generateTicketId() {
+            const timestamp = Date.now();
+            const random = Math.floor(Math.random() * 10000);
+            return `TKT-${timestamp}${random}`.slice(0, 12);
+        }
+
         function addComplaint() {
             const input = document.getElementById('complaint-title');
             if (!input.value.trim()) return;
-            complaints.unshift({ id: Date.now(), title: input.value.trim(), priority: document.getElementById('complaint-priority').value, status: 'pending', date: Date.now() });
-            input.value = ''; saveComplaints(); renderComplaints(); updateStats();
+            const ticketId = generateTicketId();
+            complaints.unshift({ 
+                id: Date.now(), 
+                ticketId: ticketId,
+                title: input.value.trim(), 
+                priority: document.getElementById('complaint-priority').value, 
+                status: 'pending', 
+                date: Date.now() 
+            });
+            
+            // Show confirmation message
+            const confirmMsg = document.getElementById('ticket-confirmation');
+            confirmMsg.innerHTML = `✓ Complaint submitted! Your ticket ID is <strong>${ticketId}</strong>. Keep this for reference.`;
+            confirmMsg.classList.add('visible');
+            setTimeout(() => confirmMsg.classList.remove('visible'), 4000);
+            
+            input.value = ''; 
+            saveComplaints(); 
+            renderComplaints(); 
+            updateStats();
         }
         function markResolved(idx) { complaints[idx].status = 'resolved'; saveComplaints(); renderComplaints(); updateStats(); }
         function removeComplaint(idx) { complaints.splice(idx, 1); saveComplaints(); renderComplaints(); updateStats(); }

@@ -422,7 +422,9 @@
                         </div>
                         <div class="action-buttons">
                             <button class="btn btn-edit" onclick="openEditModal(${JSON.stringify(c).replace(/"/g, '&quot;')})">Edit</button>
-                            <button class="btn btn-assign" onclick="openAssignModal(${JSON.stringify(c).replace(/"/g, '&quot;')})">Assign Tech</button>
+                            <button class="btn btn-assign" onclick="openAssignModal(${JSON.stringify(c).replace(/"/g, '&quot;')})">
+                                ${c.assignedTechnician ? 'Reassign' : 'Assign'} Tech
+                            </button>
                             ${c.assignedTechnician ? `<button class="btn" style="background: #fca5a5; color: white;" onclick="removeAssignment(${c.id})">Remove</button>` : ''}
                         </div>
                     </div>
